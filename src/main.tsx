@@ -8,6 +8,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
 import ScheduleLinkPage from './pages/ScheduleLinkPage';
+import CreateEventPage from './pages/CreateEventPage';
+import EventDetailPage from './pages/EventDetailPage';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -27,7 +29,7 @@ function AppRoutes() {
   return (
     <AuthContext.Provider value={auth}>
       <Routes>
-        {/* Rutas públicas */}
+        {/* Públicas */}
         <Route path="/login" element={
           auth.user ? <Navigate to="/" /> : <LoginPage />
         } />
@@ -36,15 +38,20 @@ function AppRoutes() {
         } />
         <Route path="/s/:token" element={<ScheduleLinkPage />} />
 
-        {/* Rutas protegidas */}
+        {/* Protegidas */}
         <Route path="/" element={
           auth.user ? <DashboardPage /> : <Navigate to="/login" />
         } />
         <Route path="/admin" element={
           auth.user ? <AdminPage /> : <Navigate to="/login" />
         } />
+        <Route path="/events/new" element={
+          auth.user ? <CreateEventPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/events/:id" element={
+          auth.user ? <EventDetailPage /> : <Navigate to="/login" />
+        } />
 
-        {/* Fallback */}
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AuthContext.Provider>

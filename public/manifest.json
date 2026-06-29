@@ -1,6 +1,6 @@
 {
-  "name": "Campamento App",
-  "short_name": "Campamento",
+  "name": "Callate y baila!",
+  "short_name": "CyB",
   "description": "Control de turnos para campamentos de conciertos",
   "start_url": "/",
   "display": "standalone",

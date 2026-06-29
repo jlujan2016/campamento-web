@@ -68,7 +68,7 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Tent className="w-5 h-5" />
-            <span className="font-semibold">Campamento</span>
+          <span className="font-semibold">Callate y baila! 🎵</span>
           </div>
           <button onClick={logout} className="p-2 rounded-xl active:bg-blue-700">
             <LogOut className="w-5 h-5" />

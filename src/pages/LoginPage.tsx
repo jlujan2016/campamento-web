@@ -32,8 +32,8 @@ export default function LoginPage() {
                         bg-blue-600 rounded-2xl mb-4">
           <Tent className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">Campamento App</h1>
-        <p className="text-gray-500 text-sm mt-1">Control de turnos para conciertos</p>
+        <h1 className="text-2xl font-bold text-gray-900">Callate y baila! 🎵</h1>
+        <p className="text-gray-500 text-sm mt-1">Creá tu cuenta</p>
       </div>
 
       <div className="card">

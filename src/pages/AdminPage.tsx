@@ -3,7 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { eventsApi } from '../api/events';
 import type { Event, EventMember, RankingEntry } from '../types';
 import BottomNav from '../components/BottomNav';
-import { Users, Trophy, RefreshCw, Moon, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Trophy, RefreshCw, Moon, CheckCircle,
+         XCircle, Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -39,31 +41,59 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
+
+      {/* ── Header con botón "Nuevo evento" para super admin ── */}
       <div className="bg-blue-600 text-white px-4 pt-12 pb-6">
-        <p className="font-semibold">Panel admin</p>
-        <p className="text-blue-100 text-sm">{selectedEvent?.name || 'Cargando...'}</p>
+        <div className="flex items-center justify-between mb-1">
+          <p className="font-semibold">Panel admin</p>
+          {user?.is_super_admin && (
+            <Link
+              to="/events/new"
+              className="flex items-center gap-1 bg-white text-blue-600
+                         px-3 py-1.5 rounded-xl text-sm font-semibold"
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo evento
+            </Link>
+          )}
+        </div>
+        <p className="text-blue-100 text-sm">
+          {selectedEvent?.name || 'Cargando...'}
+        </p>
       </div>
 
       <div className="px-4 -mt-4 space-y-4">
-        {/* Selector de evento */}
-        {events.length > 1 && (
+
+        {/* ── Selector de evento con link al detalle ── */}
+        {events.length > 0 && (
           <div className="card">
-            <select
-              className="input"
-              value={selectedEvent?.id || ''}
-              onChange={e => {
-                const ev = events.find(ev => ev.id === e.target.value);
-                if (ev) loadEvent(ev);
-              }}
-            >
-              {events.map(ev => (
-                <option key={ev.id} value={ev.id}>{ev.name}</option>
-              ))}
-            </select>
+            <p className="text-xs text-gray-400 mb-2">Evento seleccionado</p>
+            <div className="flex items-center gap-2">
+              <select
+                className="input flex-1"
+                value={selectedEvent?.id || ''}
+                onChange={e => {
+                  const ev = events.find(ev => ev.id === e.target.value);
+                  if (ev) loadEvent(ev);
+                }}
+              >
+                {events.map(ev => (
+                  <option key={ev.id} value={ev.id}>{ev.name}</option>
+                ))}
+              </select>
+              {selectedEvent && (
+                <Link
+                  to={`/events/${selectedEvent.id}`}
+                  className="text-blue-600 text-sm font-medium whitespace-nowrap"
+                >
+                  Gestionar →
+                </Link>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Tabs */}
+        {/* ── Tabs ── */}
         <div className="flex gap-2">
           <button
             onClick={() => setActiveTab('ranking')}
@@ -95,10 +125,10 @@ export default function AdminPage() {
           </div>
         ) : (
           <>
-            {/* Ranking */}
+            {/* ── Ranking ── */}
             {activeTab === 'ranking' && (
               <div className="space-y-2">
-                {ranking.map((entry, i) => (
+                {ranking.map((entry) => (
                   <div key={entry.user_id} className={`card flex items-center gap-3
                     ${!entry.meets_minimum ? 'opacity-60' : ''}`}>
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center
@@ -118,7 +148,7 @@ export default function AdminPage() {
                     </div>
                     <div className="flex gap-1">
                       {entry.night_shift_completed && (
-                        <Moon className="w-4 h-4 text-indigo-400" title="Turno noche cumplido" />
+                        <Moon className="w-4 h-4 text-indigo-400" />
                       )}
                       {entry.meets_minimum
                         ? <CheckCircle className="w-4 h-4 text-green-500" />
@@ -135,7 +165,7 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* Miembros */}
+            {/* ── Miembros ── */}
             {activeTab === 'members' && (
               <div className="space-y-2">
                 {members.map(member => (
@@ -159,6 +189,11 @@ export default function AdminPage() {
                     </span>
                   </div>
                 ))}
+                {members.length === 0 && (
+                  <div className="card text-center py-8">
+                    <p className="text-gray-400 text-sm">Sin miembros aún</p>
+                  </div>
+                )}
               </div>
             )}
           </>
