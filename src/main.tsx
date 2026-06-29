@@ -10,6 +10,7 @@ import AdminPage from './pages/AdminPage';
 import ScheduleLinkPage from './pages/ScheduleLinkPage';
 import CreateEventPage from './pages/CreateEventPage';
 import EventDetailPage from './pages/EventDetailPage';
+import SchedulePage from './pages/SchedulePage';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -50,6 +51,9 @@ function AppRoutes() {
         } />
         <Route path="/events/:id" element={
           auth.user ? <EventDetailPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/events/:id/schedule" element={
+          auth.user ? <SchedulePage /> : <Navigate to="/login" />
         } />
 
         <Route path="*" element={<Navigate to="/" />} />
