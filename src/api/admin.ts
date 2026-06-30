@@ -44,21 +44,22 @@ export const adminApi = {
   generateScheduleLink: (eventId: string, hours: number) =>
     api.post(`/events/${eventId}/schedule-link`, { expires_in_hours: hours }),
 
-  // Aprobaciones
+  // Turnos
   listAllShifts: (eventId: string) =>
     api.get<any[]>(`/events/${eventId}/shifts/all`),
 
+  approveExtraShift: (shiftId: string) =>
+    api.put<any>(`/shifts/${shiftId}/approve`, {}),
+
+  // Aportes
   listContributions: (eventId: string) =>
     api.get<any[]>(`/events/${eventId}/contributions`),
 
   approveContribution: (id: string, action: string, hour_bonus?: number) =>
-    api.put(`/contributions/${id}/approve`, { action, hour_bonus_override: hour_bonus }),
-
-  approveShift: (shiftId: string) =>
-    api.put(`/shifts/${shiftId}/approve`, {}),
-
-  withdrawMember: (eventId: string, userId: string) =>
-    api.post(`/events/${eventId}/members/${userId}/withdraw`, {}),
+    api.put(`/contributions/${id}/approve`, {
+      action,
+      hour_bonus_override: hour_bonus
+    }),
 
   // Tipos de aporte
   createContributionType: (eventId: string, data: CreateContributionTypeData) =>
@@ -66,4 +67,8 @@ export const adminApi = {
 
   listContributionTypes: (eventId: string) =>
     api.get<any[]>(`/events/${eventId}/contribution-types`),
+
+  // Miembros
+  withdrawMember: (eventId: string, userId: string) =>
+    api.post(`/events/${eventId}/members/${userId}/withdraw`, {}),
 };
