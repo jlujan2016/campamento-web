@@ -7,6 +7,8 @@ import ShiftCard from '../components/ShiftCard';
 import MetricsCard from '../components/MetricsCard';
 import BottomNav from '../components/BottomNav';
 import { LogOut, Tent, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Calendar } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -111,6 +113,27 @@ export default function DashboardPage() {
                 metrics={metrics}
                 minHours={selectedEvent?.min_total_hours}
               />
+            )}
+
+            {selectedEvent && (
+              <Link
+                to={`/events/${selectedEvent.id}/my-schedule`}
+                className="card flex items-center gap-3 active:bg-gray-50"
+              >
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center
+                                justify-center flex-shrink-0">
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-sm text-gray-900">
+                    Ver cronograma y anotarme
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Elegí tus próximos turnos
+                  </p>
+                </div>
+                <span className="text-gray-300">›</span>
+              </Link>
             )}
 
             {/* Turnos próximos */}

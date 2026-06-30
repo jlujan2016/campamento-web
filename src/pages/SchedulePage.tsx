@@ -10,6 +10,7 @@ import {
   Clock, Users, RefreshCw, Moon, Copy, Check, Calendar
 } from 'lucide-react';
 import CreateSlotModal from '../components/CreateSlotModal';
+import SlotPicker from '../components/SlotPicker';
 
 export default function SchedulePage() {
   const { id: eventId } = useParams<{ id: string }>();

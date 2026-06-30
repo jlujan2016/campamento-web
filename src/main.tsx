@@ -12,6 +12,8 @@ import CreateEventPage from './pages/CreateEventPage';
 import EventDetailPage from './pages/EventDetailPage';
 import SchedulePage from './pages/SchedulePage';
 import ApprovalsPage from './pages/ApprovalsPage';
+import SettingsPage from './pages/SettingsPage';
+import MyScheduleePage from './pages/MyScheduleePage';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -59,7 +61,12 @@ function AppRoutes() {
         <Route path="/events/:id/approvals" element={
           auth.user ? <ApprovalsPage /> : <Navigate to="/login" />
         } />
-
+        <Route path="/events/:id/settings" element={
+          auth.user ? <SettingsPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/events/:id/my-schedule" element={
+          auth.user ? <MyScheduleePage /> : <Navigate to="/login" />
+        } />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AuthContext.Provider>
