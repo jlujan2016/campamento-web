@@ -25,17 +25,35 @@ export default function CreateEventPage() {
   const [error, setError] = useState('');
 
   // Obtener GPS del dispositivo para autocompletar lat/lng
+  const [gpsError, setGpsError] = useState('');
+
   const getLocation = () => {
-    if (!navigator.geolocation) {
-      setError('GPS no disponible en este dispositivo');
+    setGpsError('');
+
+    // Verificamos si el contexto es seguro (HTTPS o localhost)
+    if (!window.isSecureContext) {
+      setGpsError(
+        'El GPS no está disponible en HTTP. Ingresá las coordenadas manualmente ' +
+        'o usá la app desde HTTPS en producción.'
+      );
       return;
     }
+
+    if (!navigator.geolocation) {
+      setGpsError('GPS no disponible en este dispositivo');
+      return;
+    }
+
     navigator.geolocation.getCurrentPosition(
       pos => {
         setLat(pos.coords.latitude.toFixed(6));
         setLng(pos.coords.longitude.toFixed(6));
+        setGpsError('');
       },
-      () => setError('No se pudo obtener la ubicación')
+      err => {
+        setGpsError('No se pudo obtener la ubicación. Verificá los permisos.');
+      },
+      { timeout: 8000 }
     );
   };
 
@@ -147,7 +165,7 @@ export default function CreateEventPage() {
                 type="number"
                 step="any"
                 className="input"
-                placeholder="Latitud"
+                placeholder="Latitud (ej: -12.0706)"
                 value={lat}
                 onChange={e => setLat(e.target.value)}
                 required
@@ -156,12 +174,14 @@ export default function CreateEventPage() {
                 type="number"
                 step="any"
                 className="input"
-                placeholder="Longitud"
+                placeholder="Longitud (ej: -77.0334)"
                 value={lng}
                 onChange={e => setLng(e.target.value)}
                 required
               />
             </div>
+
+            {/* Botón GPS */}
             <button
               type="button"
               onClick={getLocation}
@@ -170,6 +190,22 @@ export default function CreateEventPage() {
               <MapPin className="w-4 h-4" />
               Usar mi ubicación actual
             </button>
+
+            {/* Error de GPS con instrucciones alternativas */}
+            {gpsError && (
+              <div className="mt-2 bg-amber-50 border border-amber-200
+                              rounded-xl px-3 py-2 space-y-1">
+                <p className="text-xs text-amber-700">{gpsError}</p>
+                <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 underline">
+                  Buscar coordenadas en Google Maps →
+                </a>
+
+                <p className="text-xs text-gray-400">
+                  En Google Maps: click derecho en el lugar → las coordenadas
+                  aparecen en el menú. Copiá y pegá acá.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-2">

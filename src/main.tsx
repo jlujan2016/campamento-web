@@ -14,6 +14,8 @@ import SchedulePage from './pages/SchedulePage';
 import ApprovalsPage from './pages/ApprovalsPage';
 import SettingsPage from './pages/SettingsPage';
 import MyScheduleePage from './pages/MyScheduleePage';
+import RegisterContributionPage from './pages/RegisterContributionPage';
+import CreateExtraShiftPage from './pages/CreateExtraShiftPage';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -66,6 +68,12 @@ function AppRoutes() {
         } />
         <Route path="/events/:id/my-schedule" element={
           auth.user ? <MyScheduleePage /> : <Navigate to="/login" />
+        } />
+        <Route path="/events/:id/contribute" element={
+          auth.user ? <RegisterContributionPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/events/:id/extra-shift" element={
+          auth.user ? <CreateExtraShiftPage /> : <Navigate to="/login" />
         } />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

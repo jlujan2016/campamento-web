@@ -8,7 +8,7 @@ import MetricsCard from '../components/MetricsCard';
 import BottomNav from '../components/BottomNav';
 import { LogOut, Tent, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Calendar } from 'lucide-react';
+import { Calendar, Package, Clock } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -130,6 +130,48 @@ export default function DashboardPage() {
                   </p>
                   <p className="text-xs text-gray-400">
                     Elegí tus próximos turnos
+                  </p>
+                </div>
+                <span className="text-gray-300">›</span>
+              </Link>
+            )}
+
+            {selectedEvent && (
+              <Link
+                to={`/events/${selectedEvent.id}/contribute`}
+                className="card flex items-center gap-3 active:bg-gray-50"
+              >
+                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center
+                                justify-center flex-shrink-0">
+                  <Package className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-sm text-gray-900">
+                    Registrar un aporte
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Carpa, colchón, comida, pasaje...
+                  </p>
+                </div>
+                <span className="text-gray-300">›</span>
+              </Link>
+            )}
+
+            {selectedEvent && (
+              <Link
+                to={`/events/${selectedEvent.id}/extra-shift`}
+                className="card flex items-center gap-3 active:bg-gray-50"
+              >
+                <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center
+                                justify-center flex-shrink-0">
+                  <Clock className="w-5 h-5 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-sm text-gray-900">
+                    Solicitar turno extra
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    Vas aunque no estés en el cronograma
                   </p>
                 </div>
                 <span className="text-gray-300">›</span>

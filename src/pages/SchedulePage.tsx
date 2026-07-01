@@ -58,9 +58,28 @@ export default function SchedulePage() {
   };
 
   const copyLink = async () => {
-    await navigator.clipboard.writeText(generatedLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      // Intenta el API moderno (solo funciona en HTTPS o localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(generatedLink);
+      } else {
+        // Fallback para HTTP con IP de red local
+        const textarea = document.createElement('textarea');
+        textarea.value = generatedLink;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Si todo falla, mostramos el link para que lo copie manualmente
+      alert(`Copiá este link:\n${generatedLink}`);
+    }
   };
 
   // Agrupamos los slots por día para que sea más fácil de leer

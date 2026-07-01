@@ -14,13 +14,15 @@ export default function CheckinButton({ shift, onSuccess, onError }: Props) {
 
   const getGPS = (): Promise<GeolocationPosition | null> => {
     return new Promise(resolve => {
-      if (!navigator.geolocation) {
+      // En iOS sin HTTPS, el GPS no está disponible
+      // El check-in igual se registra, solo sin coordenadas
+      if (!window.isSecureContext || !navigator.geolocation) {
         resolve(null);
         return;
       }
       navigator.geolocation.getCurrentPosition(
         pos => resolve(pos),
-        () => resolve(null),  // si falla el GPS, continuamos igual
+        () => resolve(null),
         { timeout: 5000 }
       );
     });

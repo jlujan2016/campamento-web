@@ -5,6 +5,7 @@ import type { ScheduleSlot } from '../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Moon, Clock, CheckCircle } from 'lucide-react';
+import SlotPicker from '../components/SlotPicker';
 
 export default function ScheduleLinkPage() {
   const { token } = useParams<{ token: string }>();
