@@ -9,6 +9,8 @@ interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  // Nueva función para setear token desde afuera (ej. enlace temporal)
+  setTokenAndReload: (token: string) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -31,7 +33,6 @@ export function useAuthProvider(): AuthContextType {
       authApi.me()
         .then(setUser)
         .catch(() => {
-          // Token expirado o inválido
           localStorage.removeItem('token');
           setToken(null);
         })
@@ -61,5 +62,23 @@ export function useAuthProvider(): AuthContextType {
     setUser(null);
   };
 
-  return { user, token, login, register, logout, isLoading };
+  // Nueva función: recibe el token del enlace temporal,
+  // lo guarda, y carga los datos del usuario desde la API
+  const setTokenAndReload = async (newToken: string) => {
+    localStorage.setItem('token', newToken);
+    setToken(newToken);
+    // Cargamos los datos del usuario con el nuevo token
+    try {
+      const userData = await authApi.me();
+      setUser(userData);
+    } catch {
+      localStorage.removeItem('token');
+      setToken(null);
+    }
+  };
+
+  return {
+    user, token, login, register, logout,
+    isLoading, setTokenAndReload
+  };
 }
