@@ -12,6 +12,7 @@ export default function ScheduleLinkPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const { user, setTokenAndReload } = useAuth();
+  const API_URL = import.meta.env.VITE_API_URL ?? '/api';
 
   const [data, setData] = useState<any>(null);
   const [selected, setSelected] = useState<string[]>([]);
@@ -94,7 +95,7 @@ export default function ScheduleLinkPage() {
       }
 
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/schedule/${token}/signup`,
+        `${API_URL}/schedule/${token}/signup`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

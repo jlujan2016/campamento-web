@@ -23,7 +23,8 @@ export const eventsApi = {
   ranking: (id: string) => api.get<RankingEntry[]>(`/events/${id}/ranking`),
 
   // Enlace público (sin token)
-  publicSchedule: (token: string) =>
-    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/schedule/${token}`)
-      .then(r => r.json()),
+  publicSchedule: (token: string) => {
+    const base = import.meta.env.VITE_API_URL ?? '/api';
+    return fetch(`${base}/schedule/${token}`).then(r => r.json());
+  },
 };
