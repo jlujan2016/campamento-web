@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { eventsApi } from '../api/events';
-import type { ScheduleSlot } from '../types';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { CheckCircle, Eye, EyeOff } from 'lucide-react';
@@ -58,7 +57,6 @@ export default function ScheduleLinkPage() {
     e.preventDefault();
     if (!token || selected.length === 0) return;
     // Si ya está logueado, usamos sus datos del contexto directamente
-    const effectiveName = user ? user.name : name;
     const effectivePhone = user ? (user.phone || '') : phone;
 
     // Validaciones

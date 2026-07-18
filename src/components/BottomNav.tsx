@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { Home, Calendar, BarChart2, Users } from 'lucide-react';
+import { Home, BarChart2, Users } from 'lucide-react';
 
 const links = [
   { to: '/',        label: 'Inicio',   icon: Home },

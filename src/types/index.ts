@@ -23,6 +23,7 @@ export interface Event {
   end_date: string;
   status: string;
   min_shift_hours: number;
+  max_shift_hours: number | null;
   min_total_hours: number | null;
   late_tolerance_minutes: number;
   night_start_time: string | null;

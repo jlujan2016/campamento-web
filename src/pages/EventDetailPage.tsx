@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { eventsApi } from '../api/events';
 import type { Event } from '../types';
 import { ArrowLeft, Calendar, CheckSquare, Users,
-         Settings, Link as LinkIcon, RefreshCw } from 'lucide-react';
+         Settings, Link as  RefreshCw } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 

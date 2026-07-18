@@ -50,7 +50,7 @@ export default function CreateEventPage() {
         setLng(pos.coords.longitude.toFixed(6));
         setGpsError('');
       },
-      err => {
+      _err => {
         setGpsError('No se pudo obtener la ubicación. Verificá los permisos.');
       },
       { timeout: 8000 }
