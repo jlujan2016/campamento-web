@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           // Quita el prefijo /api antes de mandarlo al backend
           // /api/auth/login → /auth/login
-          rewrite: (path: string) => path.replace(/^\/api/, ''),
+          //rewrite: (path: string) => path.replace(/^\/api/, ''),
         },
       },
     },

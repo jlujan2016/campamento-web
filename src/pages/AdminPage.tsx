@@ -42,19 +42,29 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
 
-      {/* ── Header con botón "Nuevo evento" para super admin ── */}
+      {/* ── Header con botones "Usuarios" y "Nuevo evento" para super admin ── */}
       <div className="bg-blue-600 text-white px-4 pt-12 pb-6">
         <div className="flex items-center justify-between mb-1">
           <p className="font-semibold">Panel admin</p>
           {user?.is_super_admin && (
-            <Link
-              to="/events/new"
-              className="flex items-center gap-1 bg-white text-blue-600
-                         px-3 py-1.5 rounded-xl text-sm font-semibold"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo evento
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                to="/users"
+                className="flex items-center gap-1 bg-blue-500 text-white
+                           px-3 py-1.5 rounded-xl text-sm font-semibold"
+              >
+                <Users className="w-4 h-4" />
+                Usuarios
+              </Link>
+              <Link
+                to="/events/new"
+                className="flex items-center gap-1 bg-white text-blue-600
+                           px-3 py-1.5 rounded-xl text-sm font-semibold"
+              >
+                <Plus className="w-4 h-4" />
+                Nuevo evento
+              </Link>
+            </div>
           )}
         </div>
         <p className="text-blue-100 text-sm">

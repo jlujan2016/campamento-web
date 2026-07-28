@@ -71,4 +71,27 @@ export const adminApi = {
   // Miembros
   withdrawMember: (eventId: string, userId: string) =>
     api.post(`/events/${eventId}/members/${userId}/withdraw`, {}),
+
+  // Gestión de usuarios (super admin)
+  listUsers: (query?: string) =>
+    api.get<any[]>(`/users${query ? `?q=${encodeURIComponent(query)}` : ''}`),
+
+  createUser: (data: {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string;
+    is_super_admin?: boolean;
+  }) => api.post<any>('/users', data),
+
+  blockUser: (userId: string) =>
+    api.put<any>(`/users/${userId}/block`),
+
+  deleteUser: (userId: string) =>
+    api.delete<any>(`/users/${userId}`),
+
+  assignEventAdmin: (eventId: string, userId: string) =>
+    api.post<any>(`/events/${eventId}/assign-admin`, { user_id: userId }),
+
+
 };

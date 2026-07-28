@@ -17,6 +17,7 @@ import MyScheduleePage from './pages/MyScheduleePage';
 import RegisterContributionPage from './pages/RegisterContributionPage';
 import CreateExtraShiftPage from './pages/CreateExtraShiftPage';
 import './index.css';
+import UsersPage from './pages/UsersPage';
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,9 @@ function AppRoutes() {
         } />
         <Route path="/events/:id/extra-shift" element={
           auth.user ? <CreateExtraShiftPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/users" element={
+          auth.user ? <UsersPage /> : <Navigate to="/login" />
         } />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
