@@ -3,8 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { eventsApi } from '../api/events';
 import type { Event, EventMember, RankingEntry } from '../types';
 import BottomNav from '../components/BottomNav';
+import { adminApi } from '../api/admin';
 import { Users, Trophy, RefreshCw, Moon, CheckCircle,
-         XCircle, Plus } from 'lucide-react';
+         XCircle, Plus, ShieldCheck  } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminPage() {
@@ -15,6 +16,28 @@ export default function AdminPage() {
   const [ranking, setRanking] = useState<RankingEntry[]>([]);
   const [activeTab, setActiveTab] = useState<'members' | 'ranking'>('ranking');
   const [loading, setLoading] = useState(true);
+
+  const [promoting, setPromoting] = useState<string | null>(null);
+const [toast, setToast] = useState<{msg: string; type: 'ok'|'err'} | null>(null);
+
+const showToast = (msg: string, type: 'ok'|'err' = 'ok') => {
+  setToast({ msg, type });
+  setTimeout(() => setToast(null), 3000);
+};
+
+const handlePromote = async (memberId: string, userId: string, userName: string) => {
+  if (!selectedEvent) return;
+  setPromoting(memberId);
+  try {
+    await adminApi.assignEventAdmin(selectedEvent.id, userId);
+    showToast(`${userName} ahora es admin del evento ✓`);
+    loadEvent(selectedEvent);  // recarga la lista con el rol actualizado
+  } catch (err: any) {
+    showToast(err.message, 'err');
+  } finally {
+    setPromoting(null);
+  }
+};
 
   const loadEvent = async (event: Event) => {
     setSelectedEvent(event);
@@ -190,13 +213,30 @@ export default function AdminPage() {
                         {member.user_email || 'Sin email'}
                       </p>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full
-                      ${member.role === 'admin'
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'bg-gray-100 text-gray-500'
-                      }`}>
-                      {member.role === 'admin' ? 'Admin' : 'Participante'}
-                    </span>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <span className={`text-xs px-2 py-1 rounded-full
+                        ${member.role === 'admin'
+                          ? 'bg-blue-50 text-blue-700'
+                          : 'bg-gray-100 text-gray-500'
+                        }`}>
+                        {member.role === 'admin' ? 'Admin' : 'Participante'}
+                      </span>
+
+                      {/* Promover a admin — solo super admin, solo sobre participantes */}
+                      {user?.is_super_admin && member.role !== 'admin' && (
+                        <button
+                          onClick={() => handlePromote(
+                            member.id, member.user_id, member.user_name
+                          )}
+                          disabled={promoting === member.id}
+                          title="Hacer admin del evento"
+                          className="p-2 rounded-xl bg-purple-50 text-purple-600
+                                     active:bg-purple-100 disabled:opacity-50"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {members.length === 0 && (
@@ -209,6 +249,18 @@ export default function AdminPage() {
           </>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className={`fixed top-4 left-4 right-4 px-4 py-3 rounded-xl
+                         text-sm font-medium shadow-lg z-50 text-center
+                         ${toast.type === 'ok'
+                           ? 'bg-green-500 text-white'
+                           : 'bg-red-500 text-white'
+                         }`}>
+          {toast.msg}
+        </div>
+      )}
 
       <BottomNav />
     </div>
