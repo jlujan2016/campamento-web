@@ -5,7 +5,7 @@ import type { Event, EventMember, RankingEntry } from '../types';
 import BottomNav from '../components/BottomNav';
 import { adminApi } from '../api/admin';
 import { Users, Trophy, RefreshCw, Moon, CheckCircle,
-         XCircle, Plus, ShieldCheck  } from 'lucide-react';
+         XCircle, Plus, ShieldCheck, ShieldOff   } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function AdminPage() {
@@ -38,6 +38,20 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
     setPromoting(null);
   }
 };
+
+  const handleDemote = async (memberId: string, userId: string, userName: string) => {
+    if (!selectedEvent) return;
+    setPromoting(memberId);
+    try {
+      await adminApi.removeEventAdmin(selectedEvent.id, userId);
+      showToast(`${userName} ya no es admin del evento`);
+      loadEvent(selectedEvent);
+    } catch (err: any) {
+      showToast(err.message, 'err');
+    } finally {
+      setPromoting(null);
+    }
+  };
 
   const loadEvent = async (event: Event) => {
     setSelectedEvent(event);
@@ -234,6 +248,23 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
                                      active:bg-purple-100 disabled:opacity-50"
                         >
                           <ShieldCheck className="w-4 h-4" />
+                        </button>
+                      )}
+
+                      {/* Degradar: solo sobre admins, y no sobre uno mismo */}
+                      {user?.is_super_admin
+                        && member.role === 'admin'
+                        && member.user_id !== user.id && (
+                        <button
+                          onClick={() => handleDemote(
+                            member.id, member.user_id, member.user_name
+                          )}
+                          disabled={promoting === member.id}
+                          title="Quitar rol de admin"
+                          className="p-2 rounded-xl bg-gray-100 text-gray-500
+                                     active:bg-gray-200 disabled:opacity-50"
+                        >
+                          <ShieldOff className="w-4 h-4" />
                         </button>
                       )}
                     </div>

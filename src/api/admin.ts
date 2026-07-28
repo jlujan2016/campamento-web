@@ -93,5 +93,8 @@ export const adminApi = {
   assignEventAdmin: (eventId: string, userId: string) =>
     api.post<any>(`/events/${eventId}/assign-admin`, { user_id: userId }),
 
+  removeEventAdmin: (eventId: string, userId: string) =>
+  api.post<any>(`/events/${eventId}/remove-admin`, { user_id: userId }),
+
 
 };
