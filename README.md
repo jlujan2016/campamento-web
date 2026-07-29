@@ -178,6 +178,7 @@ Turno nocturno: 00:00 - 06:00, obligatorio
 ```
 
 📸 *Captura: pantalla de creación de evento completada*
+![](screenshots/01-crear-evento.png)
 
 ### Paso 2 — Configurar tipos de aporte
 
@@ -191,6 +192,7 @@ Pasaje         → 1h
 ```
 
 📸 *Captura: lista de tipos de aporte*
+![](screenshots/02-tipos-aporte.gif)
 
 ### Paso 3 — Crear el cronograma
 
@@ -208,6 +210,7 @@ Día 5, 08:00-11:00, cupo 4
 ```
 
 📸 *Captura: cronograma completo con barras de ocupación*
+![](screenshots/03-crear-cronograma.gif)
 
 ### Paso 4 — Probar el enlace temporal (con cuenta y sin cuenta)
 
@@ -233,6 +236,8 @@ Anotarse en 1 slot
 ```
 
 📸 *Captura: formulario del enlace con toggle de cuenta + dashboard post auto-login*
+![](screenshots/04a--probar-enlace-y-crear-usuario.gif)
+![](screenshots/04b--probar-enlace-y-sin-crear-usuario-solo-invitado.gif)
 
 ### Paso 5 — Crear participantes desde gestión de usuarios
 
@@ -248,6 +253,7 @@ Verificá también el buscador (escribí "die" y esperá el filtrado).
 Para cada uno: login en incógnito → unirse al evento → "Mi cronograma" → anotarse en 2-3 slots (incluyendo al menos un turno nocturno).
 
 📸 *Captura: pantalla de gestión de usuarios con la lista y el buscador*
+![](screenshots/05-crear-participante-ana.gif)
 
 ### Paso 6 — Probar bloqueo de usuario
 
@@ -259,6 +265,7 @@ Para cada uno: login en incógnito → unirse al evento → "Mi cronograma" → 
 ```
 
 📸 *Captura: usuario bloqueado en la lista + mensaje de rechazo en login*
+![](screenshots/06-bloqueo-de-usuario.gif)
 
 ### Paso 7 — Promover un participante a admin
 
@@ -270,6 +277,7 @@ Para cada uno: login en incógnito → unirse al evento → "Mi cronograma" → 
 ```
 
 📸 *Captura: lista de miembros con los botones de escudo*
+![](screenshots/07-promover-participante-admin.gif)
 
 ### Paso 8 — Simular check-in/out
 
@@ -286,6 +294,7 @@ Con cada usuario, en su turno más próximo (podés crear un slot "ahora mismo" 
 > 💡 El GPS registra la ubicación del **dispositivo del usuario**, no del servidor. Podés verificarlo pegando las coordenadas guardadas en Google Maps.
 
 📸 *Captura: dashboard con "Turno en curso" y métricas actualizadas*
+![](screenshots/08-checkin-checkout3.gif)
 
 ### Paso 9 — Turno extra desde la app
 
@@ -300,6 +309,7 @@ Como admin: Aprobaciones → pestaña "Turnos extra" → Aprobar.
 Verificar que el participante puede hacer check-in en ese turno.
 
 📸 *Captura: formulario de turno extra + panel de aprobaciones*
+![](screenshots/09-turno-extra.gif)
 
 ### Paso 10 — Aporte desde la app
 
@@ -314,6 +324,7 @@ Como admin: Aprobaciones → pestaña "Aportes" → Aprobar.
 Verificar en el dashboard del participante que `Aportes: +5.0h` y el total oficial subió.
 
 📸 *Captura: selección de aporte + métricas con el bono reflejado*
+![](screenshots/10-aporte-participante.gif)
 
 ### Paso 11 — Revisar el ranking final
 
@@ -326,6 +337,7 @@ Panel admin → Ranking
 Verificá el orden (mayor `hours_total` primero), las medallas de posición, y los íconos de mínimo cumplido / turno noche.
 
 📸 *Captura: ranking con varios participantes*
+![](screenshots/11-revisar-ranking.png)
 
 ### Paso 12 — Probar retiro de participante
 
