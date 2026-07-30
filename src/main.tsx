@@ -18,6 +18,7 @@ import RegisterContributionPage from './pages/RegisterContributionPage';
 import CreateExtraShiftPage from './pages/CreateExtraShiftPage';
 import './index.css';
 import UsersPage from './pages/UsersPage';
+import RankingPage from './pages/RankingPage';
 
 const queryClient = new QueryClient();
 
@@ -78,6 +79,9 @@ function AppRoutes() {
         } />
         <Route path="/users" element={
           auth.user ? <UsersPage /> : <Navigate to="/login" />
+        } />
+        <Route path="/ranking" element={
+          auth.user ? <RankingPage /> : <Navigate to="/login" />
         } />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
