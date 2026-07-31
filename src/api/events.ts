@@ -27,4 +27,7 @@ export const eventsApi = {
     const base = import.meta.env.VITE_API_URL ?? '/api';
     return fetch(`${base}/schedule/${token}`).then(r => r.json());
   },
+
+  slotSignups: (eventId: string, slotId: string) =>
+  api.get<any[]>(`/events/${eventId}/slots/${slotId}/signups`),
 };

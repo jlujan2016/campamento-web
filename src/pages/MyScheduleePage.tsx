@@ -81,6 +81,7 @@ export default function MyScheduleePage() {
             slots={slots}
             selected={selected}
             onToggle={toggleSlot}
+            eventId={eventId} 
           />
         </div>
       </div>
