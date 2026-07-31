@@ -95,6 +95,12 @@ export const adminApi = {
 
   removeEventAdmin: (eventId: string, userId: string) =>
   api.post<any>(`/events/${eventId}/remove-admin`, { user_id: userId }),
+  
+  addMember: (eventId: string, userId: string) =>
+  api.post<any>(`/events/${eventId}/members/add`, { user_id: userId }),
+
+  withdrawMember: (eventId: string, userId: string) =>
+  api.post<any>(`/events/${eventId}/members/${userId}/withdraw`, {}),
 
 
 };

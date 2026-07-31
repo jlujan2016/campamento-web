@@ -7,6 +7,8 @@ import { adminApi } from '../api/admin';
 import { Users, Trophy, RefreshCw, Moon, CheckCircle,
          XCircle, Plus, ShieldCheck, ShieldOff   } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AddMemberModal from '../components/AddMemberModal';
+import { UserPlus, UserMinus } from 'lucide-react';
 
 export default function AdminPage() {
   const { user } = useAuth();
@@ -18,26 +20,26 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   const [promoting, setPromoting] = useState<string | null>(null);
-const [toast, setToast] = useState<{msg: string; type: 'ok'|'err'} | null>(null);
+  const [toast, setToast] = useState<{msg: string; type: 'ok'|'err'} | null>(null);
 
-const showToast = (msg: string, type: 'ok'|'err' = 'ok') => {
-  setToast({ msg, type });
-  setTimeout(() => setToast(null), 3000);
-};
+  const showToast = (msg: string, type: 'ok'|'err' = 'ok') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
-const handlePromote = async (memberId: string, userId: string, userName: string) => {
-  if (!selectedEvent) return;
-  setPromoting(memberId);
-  try {
-    await adminApi.assignEventAdmin(selectedEvent.id, userId);
-    showToast(`${userName} ahora es admin del evento ✓`);
-    loadEvent(selectedEvent);  // recarga la lista con el rol actualizado
-  } catch (err: any) {
-    showToast(err.message, 'err');
-  } finally {
-    setPromoting(null);
-  }
-};
+  const handlePromote = async (memberId: string, userId: string, userName: string) => {
+    if (!selectedEvent) return;
+    setPromoting(memberId);
+    try {
+      await adminApi.assignEventAdmin(selectedEvent.id, userId);
+      showToast(`${userName} ahora es admin del evento ✓`);
+      loadEvent(selectedEvent);  // recarga la lista con el rol actualizado
+    } catch (err: any) {
+      showToast(err.message, 'err');
+    } finally {
+      setPromoting(null);
+    }
+  };
 
   const handleDemote = async (memberId: string, userId: string, userName: string) => {
     if (!selectedEvent) return;
@@ -50,6 +52,19 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
       showToast(err.message, 'err');
     } finally {
       setPromoting(null);
+    }
+  };
+
+  const handleWithdraw = async () => {
+    if (!confirmWithdraw || !selectedEvent) return;
+    try {
+      await adminApi.withdrawMember(selectedEvent.id, confirmWithdraw.user_id);
+      showToast(`${confirmWithdraw.user_name} retirado — turnos futuros liberados`);
+      setConfirmWithdraw(null);
+      loadEvent(selectedEvent);
+    } catch (err: any) {
+      showToast(err.message, 'err');
+      setConfirmWithdraw(null);
     }
   };
 
@@ -67,6 +82,9 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
       setLoading(false);
     }
   };
+
+  const [showAddMember, setShowAddMember] = useState(false);
+  const [confirmWithdraw, setConfirmWithdraw] = useState<EventMember | null>(null);
 
   useEffect(() => {
     eventsApi.list().then(data => {
@@ -215,6 +233,17 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
             {/* ── Miembros ── */}
             {activeTab === 'members' && (
               <div className="space-y-2">
+                {user?.is_super_admin && (
+                  <button
+                    onClick={() => setShowAddMember(true)}
+                    className="w-full flex items-center justify-center gap-2
+                              bg-blue-50 text-blue-600 py-2.5 rounded-xl
+                              text-sm font-semibold"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    Agregar miembro
+                  </button>
+                )}
                 {members.map(member => (
                   <div key={member.id} className="card flex items-center gap-3">
                     <div className="w-9 h-9 bg-blue-100 rounded-full flex items-center
@@ -250,6 +279,17 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
                           <ShieldCheck className="w-4 h-4" />
                         </button>
                       )}
+                      {/* Retirar del evento */}
+                      {user?.is_super_admin && member.user_id !== user.id && (
+                        <button
+                          onClick={() => setConfirmWithdraw(member)}
+                          title="Retirar del evento"
+                          className="p-2 rounded-xl bg-red-50 text-red-500
+                                     active:bg-red-100"
+                        >
+                          <UserMinus className="w-4 h-4" />
+                        </button>
+                      )}
 
                       {/* Degradar: solo sobre admins, y no sobre uno mismo */}
                       {user?.is_super_admin
@@ -275,12 +315,55 @@ const handlePromote = async (memberId: string, userId: string, userName: string)
                     <p className="text-gray-400 text-sm">Sin miembros aún</p>
                   </div>
                 )}
+
+
               </div>
             )}
           </>
         )}
       </div>
+      {/* Modal agregar miembro */}
+      {showAddMember && selectedEvent && (
+        <AddMemberModal
+          eventId={selectedEvent.id}
+          onAdded={() => {
+            loadEvent(selectedEvent);
+            showToast('Miembro agregado ✓');
+          }}
+          onClose={() => setShowAddMember(false)}
+        />
+      )}
 
+      {/* Confirmación de retiro */}
+      {confirmWithdraw && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center px-6">
+          <div className="bg-white w-full rounded-2xl p-5 space-y-4">
+            <h3 className="font-bold text-lg">
+              ¿Retirar a {confirmWithdraw.user_name}?
+            </h3>
+            <p className="text-sm text-gray-500">
+              Sus turnos futuros se liberarán automáticamente y se notificará
+              al grupo de Telegram. Su historial de horas se conserva.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmWithdraw(null)}
+                className="flex-1 bg-gray-100 text-gray-700 py-2.5
+                          rounded-xl text-sm font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleWithdraw}
+                className="flex-1 bg-red-600 text-white py-2.5
+                          rounded-xl text-sm font-semibold"
+              >
+                Retirar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 left-4 right-4 px-4 py-3 rounded-xl
