@@ -8,6 +8,7 @@ import {
   RefreshCw, Save
 } from 'lucide-react';
 import ContributionTypeModal from '../components/ContributionTypeModal';
+import { Send } from 'lucide-react';
 
 interface ContributionType {
   id: string;
@@ -32,6 +33,10 @@ export default function SettingsPage() {
   const [minTotalHours, setMinTotalHours] = useState('');
   const [lateTolerance, setLateTolerance] = useState('');
   const [requiresNight, setRequiresNight] = useState(false);
+  const [telegramLinked, setTelegramLinked] = useState(false);
+  const [telegramChatId, setTelegramChatId] = useState('');
+  const [linkingTelegram, setLinkingTelegram] = useState(false);
+  const [showTelegramHelp, setShowTelegramHelp] = useState(false);
 
   const showToast = (msg: string, type: 'ok'|'err' = 'ok') => {
     setToast({ msg, type });
@@ -41,12 +46,17 @@ export default function SettingsPage() {
   const loadData = async () => {
     if (!eventId) return;
     try {
-      const [eventData, typesData] = await Promise.all([
+      const [eventData, typesData, telegramData] = await Promise.all([
         eventsApi.get(eventId),
         adminApi.listContributionTypes(eventId),
+        adminApi.getTelegramGroup(eventId),
       ]);
       setEvent(eventData);
       setTypes(typesData);
+      setTelegramLinked(telegramData.linked);
+      if (telegramData.telegram_chat_id) {
+        setTelegramChatId(telegramData.telegram_chat_id);
+      }
 
       // Precargamos el formulario con los valores actuales del evento
       setMinShiftHours(String(eventData.min_shift_hours));
@@ -80,6 +90,19 @@ export default function SettingsPage() {
       showToast(err.message, 'err');
     } finally {
       setSaving(false);
+    }
+  };
+  const handleLinkTelegram = async () => {
+    if (!eventId || !telegramChatId.trim()) return;
+    setLinkingTelegram(true);
+    try {
+      await adminApi.linkTelegramGroup(eventId, telegramChatId.trim());
+      setTelegramLinked(true);
+      showToast('Grupo de Telegram vinculado ✓');
+    } catch (err: any) {
+      showToast(err.message, 'err');
+    } finally {
+      setLinkingTelegram(false);
     }
   };
 
@@ -187,6 +210,64 @@ export default function SettingsPage() {
             <Save className="w-4 h-4" />
             {saving ? 'Guardando...' : 'Guardar reglas'}
           </button>
+        </div>
+
+        {/* Telegram */}
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Send className="w-4 h-4 text-gray-400" />
+              Notificaciones Telegram
+            </h2>
+            {telegramLinked && (
+              <span className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">
+                Vinculado ✓
+              </span>
+            )}
+          </div>
+
+          <p className="text-xs text-gray-400">
+            Vinculá el grupo de Telegram del campamento para recibir avisos
+            automáticos: turnos liberados, huecos sin cubrir, enlaces nuevos.
+          </p>
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              className="input flex-1"
+              placeholder="Chat ID del grupo (ej: -1001234567890)"
+              value={telegramChatId}
+              onChange={e => setTelegramChatId(e.target.value)}
+            />
+            <button
+              onClick={handleLinkTelegram}
+              disabled={linkingTelegram || !telegramChatId.trim()}
+              className="bg-blue-600 text-white px-4 rounded-xl text-sm
+                        font-semibold disabled:opacity-50 whitespace-nowrap"
+            >
+              {linkingTelegram ? '...' : telegramLinked ? 'Actualizar' : 'Vincular'}
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setShowTelegramHelp(!showTelegramHelp)}
+            className="text-xs text-blue-600 font-medium"
+          >
+            {showTelegramHelp ? 'Ocultar ayuda' : '¿Cómo consigo el Chat ID?'}
+          </button>
+
+          {showTelegramHelp && (
+            <div className="bg-blue-50 rounded-xl p-3 space-y-2 text-xs text-blue-700">
+              <p><strong>1.</strong> Agregá el bot al grupo de Telegram del campamento (buscalo por su username).</p>
+              <p><strong>2.</strong> Mandá cualquier mensaje en el grupo.</p>
+              <p><strong>3.</strong> Abrí en el navegador (reemplazá TU_TOKEN por el token del bot):</p>
+              <code className="block bg-white rounded-lg px-2 py-1.5 text-[10px] break-all">
+                https://api.telegram.org/botTU_TOKEN/getUpdates
+              </code>
+              <p><strong>4.</strong> Buscá <code className="bg-white px-1 rounded">"chat":{'{'}"id":</code> — ese número (negativo, ej. -1001234567890) es el Chat ID. Pegalo arriba.</p>
+            </div>
+          )}
         </div>
 
         {/* Tipos de aporte */}

@@ -95,12 +95,18 @@ export const adminApi = {
 
   removeEventAdmin: (eventId: string, userId: string) =>
   api.post<any>(`/events/${eventId}/remove-admin`, { user_id: userId }),
-  
+
   addMember: (eventId: string, userId: string) =>
   api.post<any>(`/events/${eventId}/members/add`, { user_id: userId }),
 
   withdrawMember: (eventId: string, userId: string) =>
   api.post<any>(`/events/${eventId}/members/${userId}/withdraw`, {}),
+
+  getTelegramGroup: (eventId: string) =>
+  api.get<{linked: boolean; telegram_chat_id: string | null}>(`/events/${eventId}/telegram/group`),
+
+  linkTelegramGroup: (eventId: string, chatId: string) =>
+    api.post<any>(`/events/${eventId}/telegram/group`, { telegram_chat_id: chatId }),
 
 
 };
