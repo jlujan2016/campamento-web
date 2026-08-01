@@ -21,6 +21,10 @@ export default function SchedulePage() {
   const [generatingLink, setGeneratingLink] = useState(false);
   const [generatedLink, setGeneratedLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [expiresHours, setExpiresHours] = useState(72);
+  const [generatedLinkId, setGeneratedLinkId] = useState('');
+  const [notifying, setNotifying] = useState(false);
+  const [notified, setNotified] = useState(false);
 
   const loadData = async () => {
     if (!eventId) return;
@@ -44,11 +48,12 @@ export default function SchedulePage() {
     if (!eventId) return;
     setGeneratingLink(true);
     try {
-      const res: any = await adminApi.generateScheduleLink(eventId, 72);
+      const res: any = await adminApi.generateScheduleLink(eventId, expiresHours);
       // Construimos el link completo para compartir
       const base = window.location.origin;
       const link = `${base}/s/${res.token}`;
       setGeneratedLink(link);
+      setGeneratedLinkId(res.id);
     } catch (err: any) {
       console.error(err);
     } finally {
@@ -94,6 +99,19 @@ export default function SchedulePage() {
     return hour >= 0 && hour < 6;
   };
 
+  const notifyGroup = async () => {
+    if (!eventId || !generatedLinkId) return;
+    setNotifying(true);
+    try {
+      await adminApi.notifyScheduleLink(eventId, generatedLinkId);
+      setNotified(true);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setNotifying(false);
+    }
+  };
+
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center">
       <RefreshCw className="w-6 h-6 animate-spin text-blue-500" />
@@ -118,25 +136,44 @@ export default function SchedulePage() {
       <div className="px-4 -mt-4 space-y-4">
 
         {/* Acciones rápidas */}
-        <div className="flex gap-3">
-          <button
-            onClick={() => setShowModal(true)}
-            className="flex-1 flex items-center justify-center gap-2
-                       bg-blue-600 text-white py-3 rounded-xl font-semibold"
-          >
-            <Plus className="w-4 h-4" />
-            Nuevo turno
-          </button>
-          <button
-            onClick={generateLink}
-            disabled={generatingLink}
-            className="flex-1 flex items-center justify-center gap-2
-                       bg-white border border-gray-200 text-gray-700
-                       py-3 rounded-xl font-semibold"
-          >
-            <LinkIcon className="w-4 h-4" />
-            {generatingLink ? 'Generando...' : 'Generar enlace'}
-          </button>
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-700">
+              Duración del enlace
+            </p>
+            <select
+              className="text-sm border border-gray-200 rounded-lg px-2 py-1"
+              value={expiresHours}
+              onChange={e => setExpiresHours(Number(e.target.value))}
+            >
+              <option value={1}>1 hora</option>
+              <option value={6}>6 horas</option>
+              <option value={24}>24 horas</option>
+              <option value={72}>72 horas (default)</option>
+              <option value={168}>7 días</option>
+            </select>
+          </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowModal(true)}
+              className="flex-1 flex items-center justify-center gap-2
+                        bg-blue-600 text-white py-3 rounded-xl font-semibold"
+            >
+              <Plus className="w-4 h-4" />
+              Nuevo turno
+            </button>
+            <button
+              onClick={generateLink}
+              disabled={generatingLink}
+              className="flex-1 flex items-center justify-center gap-2
+                        bg-white border border-gray-200 text-gray-700
+                        py-3 rounded-xl font-semibold"
+            >
+              <LinkIcon className="w-4 h-4" />
+              {generatingLink ? 'Generando...' : 'Generar enlace'}
+            </button>
+          </div>
         </div>
 
         {/* Link generado — aparece después de generarlo */}
@@ -160,9 +197,54 @@ export default function SchedulePage() {
               </button>
             </div>
             <p className="text-xs text-gray-400">
-              Válido por 72 horas. Compartilo por Telegram o WhatsApp
+              Válido por {expiresHours < 24
+                ? `${expiresHours} hora${expiresHours !== 1 ? 's' : ''}`
+                : `${Math.round(expiresHours / 24)} día${expiresHours >= 48 ? 's' : ''}`
+              }. Compartilo manualmente por Telegram o WhatsApp
               para que la gente se anote sin necesidad de cuenta.
             </p>
+
+            {generatedLink && (
+              <div className="card space-y-3">
+                <p className="text-sm font-semibold text-gray-700">
+                  🔗 Enlace para compartir
+                </p>
+                <div className="bg-gray-50 rounded-xl p-3 flex items-center gap-2">
+                  <p className="text-xs text-gray-500 flex-1 truncate">
+                    {generatedLink}
+                  </p>
+                  <button onClick={copyLink} className="flex-shrink-0 p-2 bg-blue-50 rounded-lg">
+                    {copied
+                      ? <Check className="w-4 h-4 text-green-500" />
+                      : <Copy className="w-4 h-4 text-blue-500" />
+                    }
+                  </button>
+                </div>
+                <p className="text-xs text-gray-400">
+                  Válido por {expiresHours < 24
+                    ? `${expiresHours} hora${expiresHours !== 1 ? 's' : ''}`
+                    : `${Math.round(expiresHours / 24)} día${expiresHours >= 48 ? 's' : ''}`
+                  }. Copialo y compartilo manualmente, o avisale al grupo de Telegram.
+                </p>
+
+                <button
+                  onClick={notifyGroup}
+                  disabled={notifying || notified}
+                  className={`w-full py-2.5 rounded-xl text-sm font-semibold
+                    ${notified
+                      ? 'bg-green-50 text-green-600'
+                      : 'bg-blue-50 text-blue-600'
+                    } disabled:opacity-60`}
+                >
+                  {notified
+                    ? '✓ Grupo avisado'
+                    : notifying
+                    ? 'Avisando...'
+                    : '📢 Avisar al grupo de Telegram'
+                  }
+                </button>
+              </div>
+            )}
           </div>
         )}
 

@@ -108,5 +108,8 @@ export const adminApi = {
   linkTelegramGroup: (eventId: string, chatId: string) =>
     api.post<any>(`/events/${eventId}/telegram/group`, { telegram_chat_id: chatId }),
 
+  notifyScheduleLink: (eventId: string, linkId: string) =>
+  api.post<any>(`/events/${eventId}/schedule-link/${linkId}/notify`),
+
 
 };
