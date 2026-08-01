@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { eventsApi } from '../api/events';
 import type { ScheduleSlot } from '../types';
-import { ArrowLeft, RefreshCw, CheckCircle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, CheckCircle, List, CalendarDays } from 'lucide-react';
 import SlotPicker from '../components/SlotPicker';
+import CalendarTimeline from '../components/CalendarTimeline';
 
 export default function MyScheduleePage() {
   const { id: eventId } = useParams<{ id: string }>();
@@ -13,6 +14,7 @@ export default function MyScheduleePage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<{msg: string; type: 'ok'|'err'} | null>(null);
+  const [vista, setVista] = useState<'lista' | 'timeline'>('lista');
 
   const showToast = (msg: string, type: 'ok'|'err' = 'ok') => {
     setToast({ msg, type });
@@ -75,15 +77,54 @@ export default function MyScheduleePage() {
         <p className="text-blue-100 text-sm">Elegí tus turnos disponibles</p>
       </div>
 
-      <div className="px-4 -mt-4">
-        <div className="card">
-          <SlotPicker
+      <div className="px-4 -mt-4 space-y-4">
+
+        {/* Selector de vista */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setVista('lista')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium flex items-center
+                        justify-center gap-1
+              ${vista === 'lista'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-500 border border-gray-200'
+              }`}
+          >
+            <List className="w-4 h-4" />
+            Lista
+          </button>
+          <button
+            onClick={() => setVista('timeline')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium flex items-center
+                        justify-center gap-1
+              ${vista === 'timeline'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-500 border border-gray-200'
+              }`}
+          >
+            <CalendarDays className="w-4 h-4" />
+            Calendario
+          </button>
+        </div>
+
+        {vista === 'lista' ? (
+          <div className="card">
+            <SlotPicker
+              slots={slots}
+              selected={selected}
+              onToggle={toggleSlot}
+              eventId={eventId}
+            />
+          </div>
+        ) : (
+          <CalendarTimeline
             slots={slots}
+            eventId={eventId!}
+            mode="participant"
             selected={selected}
             onToggle={toggleSlot}
-            eventId={eventId} 
           />
-        </div>
+        )}
       </div>
 
       {/* Botón fijo abajo — aparece solo si hay algo seleccionado */}
