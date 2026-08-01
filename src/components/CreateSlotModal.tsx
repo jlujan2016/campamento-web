@@ -6,14 +6,15 @@ interface Props {
   eventId: string;
   minShiftHours: number;
   maxShiftHours?: number | null;
+  defaultStart?: string | null;
   onCreated: () => void;
   onClose: () => void;
 }
 
 export default function CreateSlotModal({
-  eventId, minShiftHours, maxShiftHours, onCreated, onClose
+  eventId, minShiftHours, maxShiftHours, defaultStart, onCreated, onClose
 }: Props) {
-  const [startTime, setStartTime] = useState('');
+  const [startTime, setStartTime] = useState(defaultStart ?? '');
   const [endTime, setEndTime] = useState('');
   const [capacity, setCapacity] = useState('1');
   const [loading, setLoading] = useState(false);

@@ -10,7 +10,8 @@ import {
   Clock, Users, RefreshCw, Moon, Copy, Check, Calendar
 } from 'lucide-react';
 import CreateSlotModal from '../components/CreateSlotModal';
-
+import CalendarTimeline from '../components/CalendarTimeline';
+import { List, CalendarDays } from 'lucide-react';
 export default function SchedulePage() {
   const { id: eventId } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -25,6 +26,9 @@ export default function SchedulePage() {
   const [generatedLinkId, setGeneratedLinkId] = useState('');
   const [notifying, setNotifying] = useState(false);
   const [notified, setNotified] = useState(false);
+
+  const [vista, setVista] = useState<'lista' | 'timeline'>('lista');
+  const [horaPreseleccionada, setHoraPreseleccionada] = useState<string | null>(null);
 
   const loadData = async () => {
     if (!eventId) return;
@@ -175,6 +179,33 @@ export default function SchedulePage() {
             </button>
           </div>
         </div>
+        {/* Selector de vista */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => setVista('lista')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium flex items-center
+                        justify-center gap-1
+              ${vista === 'lista'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-500 border border-gray-200'
+              }`}
+          >
+            <List className="w-4 h-4" />
+            Lista
+          </button>
+          <button
+            onClick={() => setVista('timeline')}
+            className={`flex-1 py-2 rounded-xl text-sm font-medium flex items-center
+                        justify-center gap-1
+              ${vista === 'timeline'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-500 border border-gray-200'
+              }`}
+          >
+            <CalendarDays className="w-4 h-4" />
+            Calendario
+          </button>
+        </div>
 
         {/* Link generado — aparece después de generarlo */}
         {generatedLink && (
@@ -186,10 +217,7 @@ export default function SchedulePage() {
               <p className="text-xs text-gray-500 flex-1 truncate">
                 {generatedLink}
               </p>
-              <button
-                onClick={copyLink}
-                className="flex-shrink-0 p-2 bg-blue-50 rounded-lg"
-              >
+              <button onClick={copyLink} className="flex-shrink-0 p-2 bg-blue-50 rounded-lg">
                 {copied
                   ? <Check className="w-4 h-4 text-green-500" />
                   : <Copy className="w-4 h-4 text-blue-500" />
@@ -200,54 +228,27 @@ export default function SchedulePage() {
               Válido por {expiresHours < 24
                 ? `${expiresHours} hora${expiresHours !== 1 ? 's' : ''}`
                 : `${Math.round(expiresHours / 24)} día${expiresHours >= 48 ? 's' : ''}`
-              }. Compartilo manualmente por Telegram o WhatsApp
-              para que la gente se anote sin necesidad de cuenta.
+              }. Copialo y compartilo manualmente, o avisale al grupo de Telegram.
             </p>
 
-            {generatedLink && (
-              <div className="card space-y-3">
-                <p className="text-sm font-semibold text-gray-700">
-                  🔗 Enlace para compartir
-                </p>
-                <div className="bg-gray-50 rounded-xl p-3 flex items-center gap-2">
-                  <p className="text-xs text-gray-500 flex-1 truncate">
-                    {generatedLink}
-                  </p>
-                  <button onClick={copyLink} className="flex-shrink-0 p-2 bg-blue-50 rounded-lg">
-                    {copied
-                      ? <Check className="w-4 h-4 text-green-500" />
-                      : <Copy className="w-4 h-4 text-blue-500" />
-                    }
-                  </button>
-                </div>
-                <p className="text-xs text-gray-400">
-                  Válido por {expiresHours < 24
-                    ? `${expiresHours} hora${expiresHours !== 1 ? 's' : ''}`
-                    : `${Math.round(expiresHours / 24)} día${expiresHours >= 48 ? 's' : ''}`
-                  }. Copialo y compartilo manualmente, o avisale al grupo de Telegram.
-                </p>
-
-                <button
-                  onClick={notifyGroup}
-                  disabled={notifying || notified}
-                  className={`w-full py-2.5 rounded-xl text-sm font-semibold
-                    ${notified
-                      ? 'bg-green-50 text-green-600'
-                      : 'bg-blue-50 text-blue-600'
-                    } disabled:opacity-60`}
-                >
-                  {notified
-                    ? '✓ Grupo avisado'
-                    : notifying
-                    ? 'Avisando...'
-                    : '📢 Avisar al grupo de Telegram'
-                  }
-                </button>
-              </div>
-            )}
+            <button
+              onClick={notifyGroup}
+              disabled={notifying || notified}
+              className={`w-full py-2.5 rounded-xl text-sm font-semibold
+                ${notified
+                  ? 'bg-green-50 text-green-600'
+                  : 'bg-blue-50 text-blue-600'
+                } disabled:opacity-60`}
+            >
+              {notified
+                ? '✓ Grupo avisado'
+                : notifying
+                ? 'Avisando...'
+                : '📢 Avisar al grupo de Telegram'
+              }
+            </button>
           </div>
         )}
-
         {/* Resumen rápido */}
         <div className="grid grid-cols-3 gap-2">
           <div className="card text-center py-3">
@@ -268,83 +269,95 @@ export default function SchedulePage() {
           </div>
         </div>
 
-        {/* Cronograma agrupado por día */}
-        {Object.keys(slotsByDay).length === 0 ? (
-          <div className="card text-center py-12">
-            <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-400 text-sm">
-              No hay turnos creados aún.
-            </p>
-            <p className="text-gray-300 text-xs mt-1">
-              Tocá "Nuevo turno" para agregar el primero.
-            </p>
-          </div>
-        ) : (
-          Object.entries(slotsByDay).map(([day, daySlots]) => (
-            <div key={day} className="space-y-2">
-              {/* Encabezado del día */}
-              <p className="text-sm font-semibold text-gray-500 px-1">
-                {format(new Date(day + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es })}
+        {/* Cronograma — lista o calendario según la vista elegida */}
+        {vista === 'lista' ? (
+          Object.keys(slotsByDay).length === 0 ? (
+            <div className="card text-center py-12">
+              <Calendar className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-400 text-sm">
+                No hay turnos creados aún.
               </p>
-
-              {daySlots.map(slot => {
-                const start = parseISO(slot.start_time);
-                const end = parseISO(slot.end_time);
-                const isFull = slot.available_spots === 0;
-                const isNight = isNightShift(slot);
-                const fillPercent = Math.round(
-                  (slot.signups_count / slot.capacity) * 100
-                );
-
-                return (
-                  <div key={slot.id} className={`card space-y-2
-                    ${isFull ? 'border-red-100' : ''}`}>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-gray-900">
-                            {format(start, 'HH:mm')} — {format(end, 'HH:mm')}
-                          </p>
-                          {isNight && (
-                            <span className="flex items-center gap-1 text-xs
-                                             bg-indigo-50 text-indigo-600
-                                             px-2 py-0.5 rounded-full">
-                              <Moon className="w-3 h-3" /> Noche
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                          <Clock className="w-3 h-3" />
-                          {((end.getTime() - start.getTime()) / 3600000).toFixed(1)}h
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className={`text-sm font-bold
-                          ${isFull ? 'text-red-500' : 'text-green-600'}`}>
-                          {isFull ? 'Lleno' : `${slot.available_spots} libre${slot.available_spots !== 1 ? 's' : ''}`}
-                        </p>
-                        <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
-                          <Users className="w-3 h-3" />
-                          {slot.signups_count}/{slot.capacity}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Barra de ocupación */}
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all
-                          ${fillPercent >= 100 ? 'bg-red-400' :
-                            fillPercent >= 60 ? 'bg-amber-400' : 'bg-green-400'
-                          }`}
-                        style={{ width: `${fillPercent}%` }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
+              <p className="text-gray-300 text-xs mt-1">
+                Tocá "Nuevo turno" para agregar el primero.
+              </p>
             </div>
-          ))
+          ) : (
+            <>
+              {Object.entries(slotsByDay).map(([day, daySlots]) => (
+                <div key={day} className="space-y-2">
+                  <p className="text-sm font-semibold text-gray-500 px-1">
+                    {format(new Date(day + 'T12:00:00'), "EEEE d 'de' MMMM", { locale: es })}
+                  </p>
+
+                  {daySlots.map(slot => {
+                    const start = parseISO(slot.start_time);
+                    const end = parseISO(slot.end_time);
+                    const isFull = slot.available_spots === 0;
+                    const isNight = isNightShift(slot);
+                    const fillPercent = Math.round(
+                      (slot.signups_count / slot.capacity) * 100
+                    );
+
+                    return (
+                      <div key={slot.id} className={`card space-y-2
+                        ${isFull ? 'border-red-100' : ''}`}>
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-gray-900">
+                                {format(start, 'HH:mm')} — {format(end, 'HH:mm')}
+                              </p>
+                              {isNight && (
+                                <span className="flex items-center gap-1 text-xs
+                                                 bg-indigo-50 text-indigo-600
+                                                 px-2 py-0.5 rounded-full">
+                                  <Moon className="w-3 h-3" /> Noche
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                              <Clock className="w-3 h-3" />
+                              {((end.getTime() - start.getTime()) / 3600000).toFixed(1)}h
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-bold
+                              ${isFull ? 'text-red-500' : 'text-green-600'}`}>
+                              {isFull ? 'Lleno' : `${slot.available_spots} libre${slot.available_spots !== 1 ? 's' : ''}`}
+                            </p>
+                            <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
+                              <Users className="w-3 h-3" />
+                              {slot.signups_count}/{slot.capacity}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all
+                              ${fillPercent >= 100 ? 'bg-red-400' :
+                                fillPercent >= 60 ? 'bg-amber-400' : 'bg-green-400'
+                              }`}
+                            style={{ width: `${fillPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </>
+          )
+        ) : (
+          <CalendarTimeline
+            slots={slots}
+            eventId={eventId!}
+            mode="admin"
+            onCreateSlot={(startISO) => {
+              setHoraPreseleccionada(startISO);
+              setShowModal(true);
+            }}
+          />
         )}
       </div>
 
@@ -354,10 +367,14 @@ export default function SchedulePage() {
           eventId={eventId!}
           minShiftHours={event.min_shift_hours}
           maxShiftHours={event.max_shift_hours}
+          defaultStart={horaPreseleccionada}
           onCreated={() => {
             loadData(); // recarga la lista de slots
           }}
-          onClose={() => setShowModal(false)}
+          onClose={() => {
+            setShowModal(false);
+            setHoraPreseleccionada(null);
+          }}
         />
       )}
     </div>
